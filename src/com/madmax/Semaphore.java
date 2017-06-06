@@ -8,29 +8,38 @@ import java.util.List;
  * Класс реализующий работу светофора
  */
 public class Semaphore implements ISwitchable {
-    public final String red = "Red";
-    public final String yellow = "Yellow";
-    public final String green = "Green";
-
-    // список цветов светофора
-    protected List<String> lights;
+    // список состояний светофора
+    protected List<Light> lights;
 
     // управляющая переменная
     private int currentLight;
 
     Semaphore() {
-        lights = new ArrayList<String>(3);
-        lights.add(red);
-        lights.add(yellow);
-        lights.add(green);
+        lights = new ArrayList<>();
         currentLight = 0;
+    }
+
+    /**
+     * Добавляет новое состояние светофора
+     * @param color - цвет состояния
+     * @param actionPeriod - время работы
+     */
+    public void addLight(Colors color, long actionPeriod) {
+        lights.add(new Light(color, actionPeriod));
     }
 
     @Override
     public void doSwitch() {
-        System.out.println(lights.get(currentLight));
+        Light light = lights.get(currentLight);
+        light.activate();
+        try {
+            Thread.sleep(light.actionPeriod);
+        }
+        catch (InterruptedException e) {
+            System.err.println("Thread interrupted");
+        }
         currentLight += 1;
-        if (currentLight > 2)
+        if (currentLight >= lights.size())
             currentLight = 0;
     }
 }
